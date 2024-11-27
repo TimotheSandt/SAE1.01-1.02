@@ -126,12 +126,15 @@ public class Pauvocoder {
     /**
      * Add an echo to the wav
      * @param wav
-     * @param delay in msec
-     * @param gain
+     * @param delayMs in msec
+     * @param attn
      * @return wav with echo
      */
-    public static double[] echo(double[] wav, double delay, double gain) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public static double[] echo(double[] wav, double delayMs, double attn) {
+        for(int i = 0; i < wav.length; i++) {
+            wav[i] += wav[i + (int)(delayMs * StdAudio.SAMPLE_RATE / 1000)] * attn;
+        }
+        return wav;
     }
 
     /**
