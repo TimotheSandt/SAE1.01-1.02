@@ -64,19 +64,19 @@ public class Pauvocoder {
         int n = 0;
         if (freqScale > 1) {
             raison = (freqScale-1.0)/freqScale;
-            outputWav = new double[(int)(inputWav.length*raison + 0.5)];
-            for (double i = 0; i < inputWav.length; i += raison + 1) {
+            int taille = (int)(inputWav.length * (raison + 1) + 1);
+            outputWav = new double[taille];
+            for (double i = 0; i < inputWav.length; i += freqScale) {
                 outputWav[n++] = inputWav[(int)i];
             }
             return outputWav;
         }
+
         else if (freqScale < 1) {
             raison = (1.0-freqScale)/freqScale;
-            outputWav = new double[(int)(inputWav.length*raison + 0.5)];
-            for (int i = 0; i < inputWav.length; i++) {
-                if (true) {
-                    outputWav[n++] = inputWav[i];
-                }
+            int taille = (int)(inputWav.length * (raison + 1) + 1);
+            outputWav = new double[taille];
+            for (int i = 0; i < inputWav.length; i += freqScale) {
                 outputWav[n++] = inputWav[i];
             }
             return outputWav;
