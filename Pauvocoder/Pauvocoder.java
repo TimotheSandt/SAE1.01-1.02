@@ -112,6 +112,8 @@ public class Pauvocoder {
             int new_index = index - (int)(delayMs * StdAudio.SAMPLE_RATE / 1000);
             if (new_index >= 0) {
                 wav[index] += wav[new_index] * attn;
+                if (wav[index] > 1.0) {wav[index] = 1.0;}
+                if (wav[index] < -1.0) {wav[index] = -1.0;}
             }
         }
         return wav;
