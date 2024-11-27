@@ -108,8 +108,11 @@ public class Pauvocoder {
      * @return wav with echo
      */
     public static double[] echo(double[] wav, double delayMs, double attn) {
-        for(int i = 0; i < wav.length; i++) {
-            wav[i] += wav[i + (int)(delayMs * StdAudio.SAMPLE_RATE / 1000)] * attn;
+        for(int index = 0; index < wav.length; index++) {
+            int new_index = index - (int)(delayMs * StdAudio.SAMPLE_RATE / 1000);
+            if (new_index >= 0) {
+                wav[index] += wav[new_index] * attn;
+            }
         }
         return wav;
     }
