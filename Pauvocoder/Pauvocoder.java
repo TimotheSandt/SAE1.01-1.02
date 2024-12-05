@@ -60,32 +60,23 @@ public class Pauvocoder {
      */
     public static double[] resample(double[] inputWav, double freqScale) {
         double raison;
-        double outputWav[] = inputWav;
-        int taille;
+        double outputWav[];
+        int taille = inputWav.length;
         int n = 0;
         if (freqScale > 1) {
             raison = (freqScale-1.0)/freqScale;
             taille = (int)(inputWav.length * (1 - raison) + 1);
-            outputWav = new double[taille];
-
-            for (double i = 0; i < inputWav.length; i += freqScale) {
-                outputWav[n++] = inputWav[(int)i];
-            }
-            return outputWav;
         }
-
         else if (freqScale < 1) {
             raison = (1.0-freqScale)/freqScale;
             taille = (int)(inputWav.length * (raison + 1) + 1);
-            outputWav = new double[taille];
-
-            for (double i = 0; i < inputWav.length; i += freqScale) {
-                outputWav[n++] = inputWav[(int)i];
-            }
-            return outputWav;
-            
         }
-        return inputWav;
+
+        outputWav = new double[taille];
+        for (double i = 0; i < inputWav.length; i += freqScale) {
+            outputWav[n++] = inputWav[(int)i];
+        }
+        return outputWav;
     }
 
     /**
