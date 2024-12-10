@@ -38,12 +38,13 @@ public class Pauvocoder {
         StdAudio.save(outPutFile+"SimpleOver.wav", outputWav);
 
         // Simple dilatation with overlaping and maximum cross correlation search
-        outputWav = vocodeSimpleOverCross(newPitchWav, 1.0/freqScale);
-        StdAudio.save(outPutFile+"SimpleOverCross.wav", outputWav);
+        // outputWav = vocodeSimpleOverCross(newPitchWav, 1.0/freqScale);
+        // StdAudio.save(outPutFile+"SimpleOverCross.wav", outputWav);
 
-        joue(outputWav);
+        // joue(outputWav);
 
         // Some echo above all
+        // outputWav = echo(outputWav, 100, 0.7);
         outputWav = echo(outputWav, 100, 0.7);
         StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
 
@@ -72,6 +73,8 @@ public class Pauvocoder {
             taille = (int)(inputWav.length * (raison + 1) + 1);
         }
 
+        System.out.println("###########################");
+        System.out.println("resample");
         System.out.println("freqScale = " + freqScale);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + taille);
@@ -91,22 +94,27 @@ public class Pauvocoder {
      * @return dilated wav
      */
     public static double[] vocodeSimple(double[] inputWav, double dilatation) {
-        int saut = (int) (SEQUENCE * dilatation);
+        double saut = (SEQUENCE * dilatation);
         int n = 0;
         double outputWav[];
         int taille = (int)(inputWav.length / dilatation) + 1;
 
         outputWav = new double[taille];
 
+        System.out.println("###########################");
+        System.out.println("vocodeSimple");
         System.out.println("dilatation = " + dilatation);
         System.out.println("saut = " + saut);
         System.out.println("SEQUENCE = " + SEQUENCE);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + taille);
 
-        for (int i = 0; i < inputWav.length; i += saut) {
-            for (int j = 0; j < SEQUENCE && i+j < inputWav.length; j++) {
-                outputWav[n++] = inputWav[i+j];
+        for (double i = 0; i < inputWav.length; i += saut) {
+            for (int j = 0; j < SEQUENCE; j++) {
+                if ((int)(i+j) >= inputWav.length || n >= taille) {
+                    break;
+                }
+                outputWav[n++] = inputWav[(int)(i+j)];
             }
         }
         System.out.println("n = " + n);
@@ -120,6 +128,7 @@ public class Pauvocoder {
      * @return dilated wav
      */
     public static double[] vocodeSimpleOver(double[] inputWav, double dilatation) {
+        int seq = SEQUENCE - OVERLAP;
         int saut = (int) (SEQUENCE * dilatation);
         int n = 0;
         double outputWav[];
@@ -127,16 +136,30 @@ public class Pauvocoder {
         
         outputWav = new double[taille];
 
+        System.out.println("###########################");
+        System.out.println("vocodeSimpleOver");
+        System.out.println("dilatation = " + dilatation);
         System.out.println("saut = " + saut);
         System.out.println("SEQUENCE = " + SEQUENCE);
+        System.out.println("OVERLAP = " + OVERLAP);
+        System.out.println("seq = " + seq);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + taille);
 
-        for (int i = 0; i < inputWav.length; i += saut) {
-            for (int j = 0; j < SEQUENCE && i+j < inputWav.length; j++) {
-                if (n >= outputWav.length) continue;
+        for (int i = OVERLAP; i < inputWav.length; i += saut) {
+            for (int j = 0; j < seq ; j++) {
+                if (i+j >= inputWav.length || n >= taille)
+                    break;
                 outputWav[n++] = inputWav[i+j];
             }
+
+            for (int j = 0; j < OVERLAP; j++) {
+                if (i+j+saut >= inputWav.length || n >= taille)
+                    break;
+                double pond = (double)j / (double)OVERLAP;
+                outputWav[n++] = inputWav[i+j] * (pond) + inputWav[i+j+saut] * (1 - pond);
+            }
+
         }
         System.out.println("n = " + n);
         return outputWav;
