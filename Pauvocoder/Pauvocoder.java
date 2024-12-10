@@ -172,7 +172,42 @@ public class Pauvocoder {
      * @return dilated wav
      */
     public static double[] vocodeSimpleOverCross(double[] inputWav, double dilatation) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        int seq = SEQUENCE - OVERLAP;
+        int saut = (int) (SEQUENCE * dilatation);
+        int n = 0;
+        double outputWav[];
+        int taille = (int)(inputWav.length / dilatation) + 1;
+        
+        outputWav = new double[taille];
+
+        System.out.println("###########################");
+        System.out.println("vocodeSimpleOverCross");
+        System.out.println("dilatation = " + dilatation);
+        System.out.println("saut = " + saut);
+        System.out.println("SEQUENCE = " + SEQUENCE);
+        System.out.println("OVERLAP = " + OVERLAP);
+        System.out.println("seq = " + seq);
+        System.out.println("old taille = " + inputWav.length);
+        System.out.println("new taille = " + taille);
+
+        for (int i = OVERLAP; i < inputWav.length; i += saut) {
+            for (int j = 0; j < seq ; j++) {
+                if (i+j >= inputWav.length || n >= taille)
+                    break;
+                outputWav[n++] = inputWav[i+j];
+            }
+
+            for (int j = 0; j < OVERLAP; j++) {
+                if (i+j+saut >= inputWav.length || n >= taille)
+                    break;
+                double pond = (double)j / (double)OVERLAP;
+                outputWav[n++] = inputWav[i+j] * (pond) + inputWav[i+j+saut] * (1 - pond);
+            }
+
+        }
+        System.out.println("n = " + n);
+        return outputWav;
+    }
     }
 
     /**
