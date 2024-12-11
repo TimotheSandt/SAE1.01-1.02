@@ -127,7 +127,7 @@ public class Pauvocoder {
             if (i+j+saut >= inputWav.length || n >= outputWav.length)
                 break;
             double pond = (double)j / (double)OVERLAP;
-            outputWav[n++] = inputWav[i+j] * (pond) + inputWav[i+j+saut] * (1 - pond);
+            outputWav[n++] = inputWav[i+j] * (1 - pond) + inputWav[i+j+saut] * (pond);
         }
 
         return n;
