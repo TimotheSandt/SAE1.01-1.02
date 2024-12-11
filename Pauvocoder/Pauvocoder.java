@@ -168,6 +168,27 @@ public class Pauvocoder {
         return outputWav;
     }
 
+    public static double correlation(double[] inputWav, double[] outputWav, int decStart, int incStop, int length) {
+        double sim = 0;
+        for (int i = 0; i < length; i++) {
+            sim += inputWav[decStart + i] * outputWav[incStop - i];
+        }
+        return sim;
+    }
+
+    public static int calculOffset() {
+        similarity = Double.INFINITY;
+        offset = 0;
+        for (int i = 0; i < OVERLAP; i++) {
+            double sim = correlation(inputWav, outputWav, i);
+            if (Math.abs(sim) < similarity) {
+                similarity = sim;
+                offset = i;
+            }
+        }
+        return offset;
+    }
+
     /**
      * Simple dilatation, with overlapping and maximum cross correlation search
      * @param inputWav
@@ -196,18 +217,19 @@ public class Pauvocoder {
 
         for (int i = 0; i < inputWav.length; i += saut) {
             n -= OVERLAP;
+            offset = calculOffset();
             for (int j = 0; j < seq ; j++) {
-                if (i+j >= inputWav.length || n >= outputWav.length)
+                if (i+j + offset >= inputWav.length || n >= outputWav.length)
                     break;
 
                 if (j < OVERLAP) {
-                    outputWav[n++] += inputWav[i+j] * ((double)j / (double)OVERLAP);
+                    outputWav[n++] += inputWav[i+j + offset] * ((double)j / (double)OVERLAP);
                 }
                 else if (j >= OVERLAP && j < seq - OVERLAP) {
-                    outputWav[n++] = inputWav[i+j];
+                    outputWav[n++] = inputWav[i+j + offset];
                 }
                 else {
-                    outputWav[n++] = inputWav[i+j] * ((double)(seq - j) / (double)OVERLAP);
+                    outputWav[n++] = inputWav[i+j + offset] * ((double)(seq - j) / (double)OVERLAP);
                 }
             }
         }
