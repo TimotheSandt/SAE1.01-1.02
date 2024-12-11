@@ -121,6 +121,18 @@ public class Pauvocoder {
         return outputWav;
     }
 
+
+    public static int vocodeLinearOverlap(double[] outputWav, double[] inputWav, int n, int i, int saut) {
+        for (int j = 0; j < OVERLAP; j++) {
+            if (i+j+saut >= inputWav.length || n >= outputWav.length)
+                break;
+            double pond = (double)j / (double)OVERLAP;
+            outputWav[n++] = inputWav[i+j] * (pond) + inputWav[i+j+saut] * (1 - pond);
+        }
+
+        return n;
+    }
+
     /**
      * Simple dilatation, with overlapping
      * @param inputWav
@@ -128,7 +140,7 @@ public class Pauvocoder {
      * @return dilated wav
      */
     public static double[] vocodeSimpleOver(double[] inputWav, double dilatation) {
-        int seq = SEQUENCE - OVERLAP;
+        int seq = SEQUENCE - (OVERLAP * 2);
         int saut = (int) (SEQUENCE * dilatation);
         int n = 0;
         double outputWav[];
@@ -144,21 +156,19 @@ public class Pauvocoder {
         System.out.println("OVERLAP = " + OVERLAP);
         System.out.println("seq = " + seq);
         System.out.println("old taille = " + inputWav.length);
-        System.out.println("new taille = " + taille);
+        System.out.println("new taille = " + outputWav.length);
+
+        
+        n = vocodeLinearOverlap(outputWav, inputWav, n, 0, saut);
 
         for (int i = OVERLAP; i < inputWav.length; i += saut) {
             for (int j = 0; j < seq ; j++) {
-                if (i+j >= inputWav.length || n >= taille)
+                if (i+j >= inputWav.length || n >= outputWav.length)
                     break;
                 outputWav[n++] = inputWav[i+j];
             }
 
-            for (int j = 0; j < OVERLAP; j++) {
-                if (i+j+saut >= inputWav.length || n >= taille)
-                    break;
-                double pond = (double)j / (double)OVERLAP;
-                outputWav[n++] = inputWav[i+j] * (pond) + inputWav[i+j+saut] * (1 - pond);
-            }
+            n = vocodeLinearOverlap(outputWav, inputWav, n, i, saut);
 
         }
         System.out.println("n = " + n);
@@ -208,7 +218,7 @@ public class Pauvocoder {
         System.out.println("n = " + n);
         return outputWav;
     }
-    }
+    
 
     /**
      * Play the wav
