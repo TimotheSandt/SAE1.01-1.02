@@ -121,18 +121,6 @@ public class Pauvocoder {
         return outputWav;
     }
 
-
-    public static int vocodeLinearOverlap(double[] outputWav, double[] inputWav, int n, int i, int saut) {
-        for (int j = 0; j < OVERLAP; j++) {
-            if (i+j+saut >= inputWav.length || n >= outputWav.length)
-                break;
-            double pond = (double)j / (double)OVERLAP;
-            outputWav[n++] = inputWav[i+j] * (1 - pond) + inputWav[i+j+saut] * (pond);
-        }
-
-        return n;
-    }
-
     /**
      * Simple dilatation, with overlapping
      * @param inputWav
@@ -140,9 +128,9 @@ public class Pauvocoder {
      * @return dilated wav
      */
     public static double[] vocodeSimpleOver(double[] inputWav, double dilatation) {
-        int seq = SEQUENCE - (OVERLAP * 2);
+        int seq = SEQUENCE + OVERLAP;
         int saut = (int) (SEQUENCE * dilatation);
-        int n = 0;
+        int n = OVERLAP;
         double outputWav[];
         int taille = (int)(inputWav.length / dilatation) + 1;
         
@@ -153,23 +141,28 @@ public class Pauvocoder {
         System.out.println("dilatation = " + dilatation);
         System.out.println("saut = " + saut);
         System.out.println("SEQUENCE = " + SEQUENCE);
-        System.out.println("OVERLAP = " + OVERLAP);
         System.out.println("seq = " + seq);
+        System.out.println("OVERLAP = " + OVERLAP);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + outputWav.length);
 
-        
-        n = vocodeLinearOverlap(outputWav, inputWav, n, 0, saut);
 
-        for (int i = OVERLAP; i < inputWav.length; i += saut) {
+        for (int i = 0; i < inputWav.length; i += saut) {
+            n -= OVERLAP;
             for (int j = 0; j < seq ; j++) {
                 if (i+j >= inputWav.length || n >= outputWav.length)
                     break;
-                outputWav[n++] = inputWav[i+j];
+
+                if (j < OVERLAP) {
+                    outputWav[n++] += inputWav[i+j] * ((double)j / (double)OVERLAP);
+                }
+                else if (j >= OVERLAP && j < seq - OVERLAP) {
+                    outputWav[n++] = inputWav[i+j];
+                }
+                else {
+                    outputWav[n++] = inputWav[i+j] * ((double)(seq - j) / (double)OVERLAP);
+                }
             }
-
-            n = vocodeLinearOverlap(outputWav, inputWav, n, i, saut);
-
         }
         System.out.println("n = " + n);
         return outputWav;
