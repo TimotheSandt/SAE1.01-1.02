@@ -1,3 +1,6 @@
+
+
+
 import static java.lang.System.exit;
 
 public class Pauvocoder {
@@ -18,6 +21,7 @@ public class Pauvocoder {
         }
 
 
+
         String wavInFile = args[0];
         double freqScale = Double.valueOf(args[1]);
         String outPutFile= wavInFile.split("\\.")[0] + "_" + freqScale +"_";
@@ -25,6 +29,12 @@ public class Pauvocoder {
         // Open input .wev file
         System.out.println("Opening " + wavInFile);
         double[] inputWav = StdAudio.read(wavInFile);
+
+        for (int i = 0; i < 1000; i+=10){
+            double sim = correlation(inputWav, 5000, 5000 + i + OVERLAP);
+            System.out.println(i + "sim = " + sim);
+        }
+        exit(0);
 
         // Resample test
         System.out.println("Resampling");
@@ -126,6 +136,28 @@ public class Pauvocoder {
         return outputWav;
     }
 
+    public static int IdontKnowHowToNameIt(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
+        n -= OVERLAP;
+        for (int j = 0; j < seq ; j++) {
+            int index = i+j + offset;
+            if (index >= inputWav.length || n >= outputWav.length)
+                break;
+
+            if (j < OVERLAP) {
+                double coefficient = ((double)j / (double)OVERLAP);
+                outputWav[n++] += inputWav[index] * coefficient;
+            }
+            else if (j >= OVERLAP && j < seq - OVERLAP) {
+                outputWav[n++] = inputWav[index];
+            }
+            else {
+                double coefficient = ((double)(seq - j) / (double)OVERLAP);
+                outputWav[n++] = inputWav[index] * coefficient;
+            }
+        }
+        return n;
+    }
+
     /**
      * Simple dilatation, with overlapping
      * @param inputWav
@@ -153,21 +185,7 @@ public class Pauvocoder {
 
 
         for (int i = 0; i < inputWav.length; i += saut) {
-            n -= OVERLAP;
-            for (int j = 0; j < seq ; j++) {
-                if (i+j >= inputWav.length || n >= outputWav.length)
-                    break;
-
-                if (j < OVERLAP) {
-                    outputWav[n++] += inputWav[i+j] * ((double)j / (double)OVERLAP);
-                }
-                else if (j >= OVERLAP && j < seq - OVERLAP) {
-                    outputWav[n++] = inputWav[i+j];
-                }
-                else {
-                    outputWav[n++] = inputWav[i+j] * ((double)(seq - j) / (double)OVERLAP);
-                }
-            }
+            n = IdontKnowHowToNameIt(inputWav, outputWav, i, seq, n, 0);
         }
         System.out.println("n = " + n);
         return outputWav;
@@ -192,6 +210,8 @@ public class Pauvocoder {
                 similarity = sim;
                 offset = i;
             }
+            // System.out.println(" offset = " + i);
+            // System.out.println(" similarity = " + sim);
         }
         return offset;
     }
@@ -223,27 +243,11 @@ public class Pauvocoder {
         System.out.println("new taille = " + outputWav.length);
 
 
+        int offset = 0;
         for (int i = 0; i < inputWav.length; i += saut) {
-            n -= OVERLAP;
-            int offset = 0;
             System.out.println("offset = " + offset);
-            for (int j = 0; j < seq ; j++) {
-                int index = i+j + offset;
-                if (index >= inputWav.length || n >= outputWav.length)
-                    break;
-
-                if (j < OVERLAP) {
-                    outputWav[n++] += inputWav[index] * ((double)j / (double)OVERLAP);
-                }
-                else if (j >= OVERLAP && j < seq - OVERLAP) {
-                    outputWav[n++] = inputWav[index];
-                }
-                else {
-                    outputWav[n++] = inputWav[index] * ((double)(seq - j) / (double)OVERLAP);
-                }
-            }
-            offset = calculOffset(inputWav, i+seq-OVERLAP, i+saut+OVERLAP);
-            System.out.println("offset = " + offset);
+            n = IdontKnowHowToNameIt(inputWav, outputWav, i, seq, n, offset);
+            offset = calculOffset(inputWav, i+seq+offset-OVERLAP, i+saut+OVERLAP);
         }
         System.out.println("n = " + n);
         return outputWav;
