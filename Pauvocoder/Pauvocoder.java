@@ -1,6 +1,3 @@
-
-
-
 import static java.lang.System.exit;
 
 public class Pauvocoder {
@@ -56,7 +53,7 @@ public class Pauvocoder {
         outputWav = vocodeSimpleOverCross(newPitchWav, 1.0/freqScale);
         StdAudio.save(outPutFile+"SimpleOverCross.wav", outputWav);
 
-        // joue(outputWav);
+        joue(outputWav);
 
         // Some echo above all
         // outputWav = echo(outputWav, 100, 0.7);
@@ -125,8 +122,16 @@ public class Pauvocoder {
         System.out.println("new taille = " + taille);
 
         for (double i = 0; i < inputWav.length; i += saut) {
+            int ind = (int)i;
+            if ((int)(i+SEQUENCE) >= inputWav.length) {
+                ind = inputWav.length - SEQUENCE;
+            };
             for (int j = 0; j < SEQUENCE; j++) {
-                if ((int)(i+j) >= inputWav.length || n >= taille) {
+                if ((i+j) >= inputWav.length || n >= taille) {
+                    System.out.println("j = " + j);
+                    System.out.println("i = " + i);
+                    System.out.println("i+j = " + (i+j));
+                    System.out.println("n = " + n);
                     break;
                 }
                 outputWav[n++] = inputWav[(int)(i+j)];
@@ -138,6 +143,9 @@ public class Pauvocoder {
 
     public static int IdontKnowHowToNameIt(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
         n -= OVERLAP;
+        if ((int)(i+SEQUENCE) >= inputWav.length) {
+            i = inputWav.length - SEQUENCE;
+        };
         for (int j = 0; j < seq ; j++) {
             int index = i+j + offset;
             if (index >= inputWav.length || n >= outputWav.length)
@@ -192,13 +200,13 @@ public class Pauvocoder {
     }
 
     public static double correlation(double[] inputWav, int decStart, int incStop) {
-        double sim = 0;
+        double sum = 0;
         for (int i = 0; i < OVERLAP; i++) {
             if (decStart + i >= inputWav.length || incStop - i >= inputWav.length)
                 break;
-            sim += inputWav[decStart + i] * inputWav[incStop - i];
+            sum += inputWav[decStart + i] * inputWav[incStop - i];
         }
-        return sim;
+        return sum;
     }
 
     public static int calculOffset(double[] inputWav, int decStart, int incStop) {  
@@ -206,7 +214,7 @@ public class Pauvocoder {
         int offset = 0;
         for (int i = 1; i < SEEK_WINDOW; i++) {
             double sim = correlation(inputWav, decStart, incStop + i);
-            if (Math.abs(sim) < similarity) {
+            if (sim > similarity) {
                 similarity = sim;
                 offset = i;
             }
