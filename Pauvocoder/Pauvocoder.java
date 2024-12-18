@@ -267,7 +267,7 @@ public class Pauvocoder {
      * @param wav
      */
     public static void joue(double[] wav) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        StdAudio.play(wav);
     }
 
     /**
