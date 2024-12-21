@@ -52,11 +52,10 @@ public class Pauvocoder {
 
         // Some echo above all
         // outputWav = echo(outputWav, 100, 0.7);
-        outputWav = echo(outputWav, 100, 0.7);
-        StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
+        // StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
 
         // Display waveform
-        displayWaveform(inputWav);
+        displayWaveform(outputWav);
 
     }
 
@@ -223,8 +222,8 @@ public class Pauvocoder {
                 similarity = sim;
                 offset = i;
             }
-            System.out.println(" offset = " + i);
-            System.out.println(" similarity = " + sim);
+            // System.out.println(" offset = " + i);
+            // System.out.println(" similarity = " + sim);
         }
         return offset;
     }
@@ -299,11 +298,13 @@ public class Pauvocoder {
      * @param wav
      */
     public static void displayWaveform(double[] wav) {
-        int SIZE_WINDOW = 500;
-        int size = wav.length/100;
-        StdDraw.setCanvasSize(SIZE_WINDOW*2, SIZE_WINDOW);
+        int WIDTH_WINDOW = 1500;
+        int HEIGHT_WINDOW = 500;
+        int SIZE_REFRACTOR = 10;
+        int SIZE = wav.length/SIZE_REFRACTOR;
+        StdDraw.setCanvasSize(WIDTH_WINDOW, HEIGHT_WINDOW);
         StdDraw.enableDoubleBuffering();
-        StdDraw.setXscale(0, size);
+        StdDraw.setXscale(0, SIZE);
         StdDraw.setYscale(-1.0, 1.0);
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.setPenRadius(0.005);
@@ -314,24 +315,30 @@ public class Pauvocoder {
             while (true) {
                 long crt = System.currentTimeMillis();
                 long duree = crt - start;
-                Draw(wav, size, duree);
+                Draw(wav, SIZE_REFRACTOR, duree);
             }
         });
         drawingThread.start();
-        for (i = 0; i < size; i++)
-            StdAudio.play(wav[i]);
+
+        joue(wav);
     }
 
-    public static void Draw(double[] wav, int size, int ind) {
+    public static void Draw(double[] wav, int SIZE_REFRACTOR, long duree) {
+        StdDraw.clear();
         StdDraw.setPenColor(StdDraw.BLACK);
-        StdDraw.setPenRadius(0.003);
-        for (int j = 0, i = 0; j < wav.length; j+=100, i++) {
+        StdDraw.setPenRadius(0.001);
+        for (int j = 0, i = 0; j < wav.length; j+=SIZE_REFRACTOR, i++) {
             double x = i;
             double y = wav[j];
-            //StdDraw.filledRectangle(200000, 0, 10000, 0.2);
             StdDraw.line(x, y, x, 0);
         }
-        StdDraw.show();
+
+        StdDraw.setPenColor(StdDraw.RED);
+        StdDraw.setPenRadius(0.01);
+        int indexDuree = (int) (duree * StdAudio.SAMPLE_RATE / 1000) / SIZE_REFRACTOR;
+        StdDraw.line(indexDuree, -1, indexDuree, 1);
+
+        StdDraw.show(1000/30);
     }
 
 
