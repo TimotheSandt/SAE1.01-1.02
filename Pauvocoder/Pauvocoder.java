@@ -27,6 +27,7 @@ public class Pauvocoder {
         System.out.println("Opening " + wavInFile);
         double[] inputWav = StdAudio.read(wavInFile);
 
+
         // Resample test
         System.out.println("Resampling");
         double[] newPitchWav = resample(inputWav, freqScale);
@@ -135,27 +136,37 @@ public class Pauvocoder {
         return outputWav;
     }
 
-    public static int IdontKnowHowToNameIt(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
+    public static int applyOverlapAndMix(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
         n -= OVERLAP;
-        if ((int)(i+SEQUENCE) >= inputWav.length) {
-            i = inputWav.length - SEQUENCE;
-        };
+        // if ((int)(i+SEQUENCE) >= inputWav.length) {
+        //     i = inputWav.length - SEQUENCE;
+        // };
+        double ListOfCoefficients[] = new double[OVERLAP];
         for (int j = 0; j < seq ; j++) {
             int index = i+j + offset;
             if (index >= inputWav.length || n >= outputWav.length)
                 break;
 
             if (j < OVERLAP) {
-                double coefficient = ((double)j / (double)OVERLAP);
+                double coefficient = ((double)(j) / (double)OVERLAP);
+                ListOfCoefficients[j] = coefficient;
+                System.out.println("(j<OVERLAP) coefficient = " + coefficient);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
             else if (j >= OVERLAP && j < seq - OVERLAP) {
-                outputWav[n++] = inputWav[index];
+                outputWav[n++] += inputWav[index];
             }
             else {
                 double coefficient = ((double)(seq - j) / (double)OVERLAP);
-                outputWav[n++] = inputWav[index] * coefficient;
+                ListOfCoefficients[j - seq + OVERLAP] += coefficient;
+                System.out.println("(j>=OVERLAP) coefficient = " + coefficient);
+                outputWav[n++] += inputWav[index] * coefficient;
             }
+        }
+
+        for (int k = 0; k < OVERLAP; k++) {
+            double coef = ListOfCoefficients[k];
+            System.out.println("coef " + k + " = " + coef);
         }
         return n;
     }
@@ -187,7 +198,7 @@ public class Pauvocoder {
 
 
         for (int i = 0; i < inputWav.length; i += saut) {
-            n = IdontKnowHowToNameIt(inputWav, outputWav, i, seq, n, 0);
+            n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, 0);
         }
         System.out.println("n = " + n);
         return outputWav;
@@ -196,7 +207,7 @@ public class Pauvocoder {
     public static double correlation(double[] inputWav, int decStart, int incStop) {
         double sum = 0;
         for (int i = 0; i < OVERLAP; i++) {
-            if (decStart + i >= inputWav.length || incStop - i >= inputWav.length)
+            if (decStart + i >= inputWav.length || (incStop - i >= inputWav.length || incStop - i < 0))
                 break;
             sum += inputWav[decStart + i] * inputWav[incStop - i];
         }
@@ -212,8 +223,8 @@ public class Pauvocoder {
                 similarity = sim;
                 offset = i;
             }
-            // System.out.println(" offset = " + i);
-            // System.out.println(" similarity = " + sim);
+            System.out.println(" offset = " + i);
+            System.out.println(" similarity = " + sim);
         }
         return offset;
     }
@@ -248,7 +259,7 @@ public class Pauvocoder {
         int offset = 0;
         for (int i = 0; i < inputWav.length; i += saut) {
             System.out.println("offset = " + offset);
-            n = IdontKnowHowToNameIt(inputWav, outputWav, i, seq, n, offset);
+            n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
             offset = calculOffset(inputWav, i+seq+offset-OVERLAP, i+saut+OVERLAP);
         }
         System.out.println("n = " + n);
