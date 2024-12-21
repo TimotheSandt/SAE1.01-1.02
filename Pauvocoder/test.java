@@ -3,7 +3,7 @@ public class test {
         System.out.println("test");
 
         double freq = 440.0;
-        double time = 1;
+        double time = 3;
         String outPutFile = "sinoide" + freq + "_" + time + "s";
 
         double[] sinoide = sinoide(freq, time);
@@ -23,6 +23,7 @@ public class test {
         double[] vocodeSimpleOverCross = Pauvocoder.vocodeSimpleOverCross(newPitchWav, 1/freqScale);
         StdAudio.save(outPutFile + "_" + freqScale + "_SimpleOverCross.wav", vocodeSimpleOverCross);
 
+        Pauvocoder.joue(vocodeSimpleOverCross);
     }    
 
 
