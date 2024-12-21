@@ -27,12 +27,6 @@ public class Pauvocoder {
         System.out.println("Opening " + wavInFile);
         double[] inputWav = StdAudio.read(wavInFile);
 
-        for (int i = 0; i < 1000; i+=10){
-            double sim = correlation(inputWav, 5000, 5000 + i + OVERLAP);
-            System.out.println(i + "sim = " + sim);
-        }
-        exit(0);
-
         // Resample test
         System.out.println("Resampling");
         double[] newPitchWav = resample(inputWav, freqScale);
@@ -53,7 +47,7 @@ public class Pauvocoder {
         outputWav = vocodeSimpleOverCross(newPitchWav, 1.0/freqScale);
         StdAudio.save(outPutFile+"SimpleOverCross.wav", outputWav);
 
-        joue(outputWav);
+        // joue(outputWav);
 
         // Some echo above all
         // outputWav = echo(outputWav, 100, 0.7);
@@ -61,7 +55,7 @@ public class Pauvocoder {
         StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
 
         // Display waveform
-        displayWaveform(outputWav);
+        displayWaveform(inputWav);
 
     }
 
@@ -294,7 +288,39 @@ public class Pauvocoder {
      * @param wav
      */
     public static void displayWaveform(double[] wav) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        int SIZE_WINDOW = 500;
+        int size = wav.length/100;
+        StdDraw.setCanvasSize(SIZE_WINDOW*2, SIZE_WINDOW);
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setXscale(0, size);
+        StdDraw.setYscale(-1.0, 1.0);
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.005);
+        StdDraw.show();
+        int i = 0;
+        Thread drawingThread = new Thread(() -> {
+            long start = System.currentTimeMillis();
+            while (true) {
+                long crt = System.currentTimeMillis();
+                long duree = crt - start;
+                Draw(wav, size, duree);
+            }
+        });
+        drawingThread.start();
+        for (i = 0; i < size; i++)
+            StdAudio.play(wav[i]);
+    }
+
+    public static void Draw(double[] wav, int size, int ind) {
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.003);
+        for (int j = 0, i = 0; j < wav.length; j+=100, i++) {
+            double x = i;
+            double y = wav[j];
+            //StdDraw.filledRectangle(200000, 0, 10000, 0.2);
+            StdDraw.line(x, y, x, 0);
+        }
+        StdDraw.show();
     }
 
 
