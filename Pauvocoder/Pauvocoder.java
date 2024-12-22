@@ -19,11 +19,13 @@ public class Pauvocoder {
     final static int SEEK_WINDOW = 3*OVERLAP/4;
 
     public static void main(String[] args) {
+        if (args.length == 1 && args[0].equals("test")) {
+            test();
+            exit(0);
+        }
+
         if (args.length < 2)
         {
-            // Test
-            test();
-
             System.out.println("usage: pauvocoder <input.wav> <freqScale>\n");
             exit(1);
         }
