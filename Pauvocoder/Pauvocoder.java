@@ -529,7 +529,8 @@ public class Pauvocoder {
 
     /**
      * Tests vocodeSimpleOverCross() and resample() by comparing a sine wave
-     * with the result of applying these methods to the same sine wave with a different frequency.
+     * with the result of applying these methods to the same sine wave 
+     * with a different frequency.
      */
     public static void test() {
 
