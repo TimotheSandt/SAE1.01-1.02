@@ -8,6 +8,9 @@
 import static java.lang.System.exit;
 import java.io.File;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 public class Pauvocoder {
 
     // Processing SEQUENCE size (100 msec with 44100Hz samplerate)
@@ -26,7 +29,8 @@ public class Pauvocoder {
 
         if (args.length < 2)
         {
-            System.out.println("usage: pauvocoder <input.wav> <freqScale>\n");
+            System.out.println("usage: pauvocoder <input.wav> <freqScale>");
+            System.out.println("       pauvocoder test\n");
             exit(1);
         }
 
@@ -521,6 +525,10 @@ public class Pauvocoder {
      * with the result of applying these methods to the same sine wave with a different frequency.
      */
     public static void test() {
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         double testResult440_3s_1point2 = testComparasionFreqScale(440, 3, 1.2);
         double testResult440_3s_0point8 = testComparasionFreqScale(440, 3, 0.8);
         double testResult440_3s_1 = testComparasionFreqScale(440, 3, 1);
@@ -533,6 +541,9 @@ public class Pauvocoder {
         double test800_3s_vs_4400_3s = testComparasionFreq(800, 4400, 3);
         double test800_10s_vs_4400_10s = testComparasionFreq(800, 4400, 10);
 
+
+        System.setOut(originalOut);
+        
         System.out.println("###################");
         System.out.println("Test");
         System.out.println("Low results indicate a high similarity between the two audio");
