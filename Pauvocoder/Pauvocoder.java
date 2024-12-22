@@ -245,9 +245,9 @@ public class Pauvocoder {
         for (i = 0; i < OVERLAP; i++) {
             if (decStart + i >= inputWav.length || incStart + i >= inputWav.length)
                 break;
-            sum += Math.abs(inputWav[decStart + i] - inputWav[incStart + i]);
+            sum += inputWav[decStart + i] - inputWav[incStart + i];
         }
-        return sum/(i+1);
+        return Math.abs(sum)/(i+1);
     }
 
 
