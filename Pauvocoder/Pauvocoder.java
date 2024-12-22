@@ -21,6 +21,9 @@ public class Pauvocoder {
     public static void main(String[] args) {
         if (args.length < 2)
         {
+            // Test
+            test();
+
             System.out.println("usage: pauvocoder <input.wav> <freqScale>\n");
             exit(1);
         }
@@ -438,6 +441,130 @@ public class Pauvocoder {
 
         StdDraw.show(50);
     }
+
+
+
+
+
+    /**
+     * Returns a waveform representing a sine wave with the given frequency 
+     * and duration.
+     *
+     * @param freq the frequency of the sine wave in Hz
+     * @param time the duration of the sine wave in seconds
+     * @return the waveform as an array of doubles
+     */
+    public static double[] sinoide(double freq, double time) {
+        int taille = (int)(StdAudio.SAMPLE_RATE * time);
+        double[] sin = new double[taille];
+        for (int i = 0; i < taille; i++) {
+            sin[i] = Math.sin(2 * Math.PI * freq * i / StdAudio.SAMPLE_RATE);
+        }
+        return sin;
+    }
+
+    /**
+     * Compares two waveforms by calculating the average absolute difference 
+     * between their corresponding samples.
+     *
+     * @param wav the first waveform as an array of doubles
+     * @param wav2 the second waveform as an array of doubles
+     * @return the average absolute difference between the two waveforms
+    */
+    public static double testComparasion(double[] wav, double[] wav2) {
+        double sum = 0;
+        for (int i = 0; i < Math.min(wav.length, wav2.length); i++) {
+            sum += Math.abs(wav[i] - wav2[i]);
+        }
+        return sum / wav.length;
+        
+    }
+
+    /**
+     * Compares a sine wave with a transformed sine wave
+     * with resampled and vocodeSimpleOverCross
+     * The two sine waves are then compared with the comparasion function
+     * @param freq the frequency of the original sine wave
+     * @param time the duration of the two sine waves
+     * @param freqScale the resampling factor
+     * @return the similarity between the two sine waves
+     */
+    public static double testComparasionFreqScale(double freq, double time, double freqScale) {
+
+        double[] sin = sinoide(freq, time);
+        double[] sinResampled = resample(sin, freqScale);
+        double[] sinTransformed = vocodeSimpleOverCross(sinResampled, 1/freqScale);
+        double[] sinAttendu = sinoide(freq * freqScale, time);
+        
+        return testComparasion(sinTransformed, sinAttendu);
+    }
+
+    /**
+     * Compare two sine waves with different frequencies
+     * 
+     * @param freq1 frequency of the first sine wave
+     * @param freq2 frequency of the second sine wave
+     * @param time duration of the two sine waves
+     * @return the mean difference between the two sine waves
+     */
+    public static double testComparasionFreq(double freq1, double freq2, double time) {
+        double[] sin1 = sinoide(freq1, time);
+        double[] sin2 = sinoide(freq2, time);
+        return testComparasion(sin1, sin2);
+    }
+
+
+    /**
+     * Tests vocodeSimpleOverCross() and resample() by comparing a sine wave
+     * with the result of applying these methods to the same sine wave with a different frequency.
+     */
+    public static void test() {
+        double testResult440_3s_1point2 = testComparasionFreqScale(440, 3, 1.2);
+        double testResult440_3s_0point8 = testComparasionFreqScale(440, 3, 0.8);
+        double testResult440_3s_1 = testComparasionFreqScale(440, 3, 1);
+        double testResult440_10s_1point2 = testComparasionFreqScale(440, 10, 1.2);
+        double testResult440_10s_0point8 = testComparasionFreqScale(440, 10, 0.8);
+        double testResult440_10s_1 = testComparasionFreqScale(440, 10, 1);
+
+        double test400_3s_vs_480_3s = testComparasionFreq(400, 480, 3);
+        double test400_10s_vs_480_10s = testComparasionFreq(400, 480, 10);
+        double test800_3s_vs_4400_3s = testComparasionFreq(800, 4400, 3);
+        double test800_10s_vs_4400_10s = testComparasionFreq(800, 4400, 10);
+
+        System.out.println("###################");
+        System.out.println("Test");
+        System.out.println("Low results indicate a high similarity between the two audio");
+        System.out.println("High results indicate a low similarity between the two audio");
+        System.out.println("All tests should have a result between 0 and 1");
+        System.out.println("###################");
+        System.out.println();
+        System.out.println();
+
+        System.out.println("Comparison of different frequencies");
+        System.out.println("(Large results expected)");
+        System.out.printf("testResult time:3s - freq:400 vs 480 = %.4f%n", test400_3s_vs_480_3s);
+        System.out.printf("testResult time:10s - freq:400 vs 480 = %.4f%n", test400_10s_vs_480_10s);
+        System.out.println();  
+        System.out.printf("testResult time:3s - freq:800 vs 4400 = %.4f%n", test800_3s_vs_4400_3s);
+        System.out.printf("testResult time:10s - freq:800 vs 4400 = %.4f%n", test800_10s_vs_4400_10s);
+        System.out.println();
+        System.out.println();
+
+        System.out.println("Comparison of supposedly identical frequencies transformed with resample() then with vocodeSimpleOverCross()");
+        System.out.println("(Low results expected)");
+        System.out.printf("testResult freq:440 time:3s freqScale:1.2 = %.4f%n", testResult440_3s_1point2);
+        System.out.printf("testResult freq:440 time:3s freqScale:0.8 = %.4f%n", testResult440_3s_0point8);
+        System.out.printf("testResult freq:440 time:3s freqScale:1 = %.4f%n", testResult440_3s_1);
+        System.out.println();
+        System.out.printf("testResult freq:440 time:10s freqScale:1.2 = %.4f%n", testResult440_10s_1point2);
+        System.out.printf("testResult freq:440 time:10s freqScale:0.8 = %.4f%n", testResult440_10s_0point8);
+        System.out.printf("testResult freq:440 time:10s freqScale:1 = %.4f%n", testResult440_10s_1);
+        System.out.println();
+
+        System.out.println();
+    }
+
+
 }
 
 
