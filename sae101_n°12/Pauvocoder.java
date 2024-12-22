@@ -1,5 +1,6 @@
 // MIGUET Maxime & SANDT Timothé
 // S1C2
+// Groupe 12
 // 
 // Pauvocoder file
 

@@ -1,0 +1,49 @@
+Opening sinoide440_3s.wav
+Resampling
+###########################
+resample
+freqScale = 1.3
+old taille = 132300
+new taille = 101770
+duration = 2.3077097505668935s
+n = 101770
+Simple dilatation
+###########################
+vocodeSimple
+dilatation = 0.7692307692307692
+saut = 3392.307692307692
+SEQUENCE = 4410
+old taille = 101770
+new taille = 132301
+duration = 3.0000226757369615s
+n = 132301
+Simple dilatation with overlaping
+###########################
+vocodeSimpleOver
+dilatation = 0.7692307692307692
+saut = 3392
+SEQUENCE = 4410
+seq = 5292
+OVERLAP = 882
+old taille = 101770
+new taille = 132301
+duration = 3.0000226757369615s
+n = 132301
+Simple dilatation with overlaping and maximum cross correlation search
+###########################
+vocodeSimpleOverCross
+dilatation = 0.7692307692307692
+saut = 3392
+SEQUENCE = 4410
+seq = 5292
+OVERLAP = 882
+SEEK_WINDOW = 661
+old taille = 101770
+new taille = 132301
+duration = 3.0000226757369615s
+n = 132301
+###########################
+echo
+delayMs = 100.0
+attn = 0.7
+duration = 3.0000226757369615s
