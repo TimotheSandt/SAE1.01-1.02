@@ -230,8 +230,9 @@ public class Pauvocoder {
      */
     public static double correlation(double[] inputWav, int decStart, int incStop) {
         double sum = 0;
+        int len = inputWav.length;
         for (int i = 0; i < OVERLAP; i++) {
-            if (decStart + i >= inputWav.length || (incStop - i >= inputWav.length || incStop - i < 0))
+            if (decStart + i >= len || (incStop - i >= len || incStop - i < 0))
                 break;
             sum += inputWav[decStart + i] * inputWav[incStop - i];
         }
@@ -239,11 +240,20 @@ public class Pauvocoder {
     }
 
 
+    /**
+     * Computes the mean difference between two segments of the input waveform.
+     * 
+     * @param inputWav
+     * @param decStart the starting index for the decreasing segment
+     * @param incStart the starting index for the increasing segment
+     * @return the mean difference
+     */
     public static double meanDifferences(double[] inputWav, int decStart, int incStart) {
         double sum = 0;
         int i;
+        int len = inputWav.length;
         for (i = 0; i < OVERLAP; i++) {
-            if (decStart + i >= inputWav.length || incStart + i >= inputWav.length)
+            if (decStart + i >= len || incStart + i >= len)
                 break;
             sum += Math.abs(inputWav[decStart + i] - inputWav[incStart + i]);
         }
@@ -313,7 +323,7 @@ public class Pauvocoder {
                 int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
                 int offsetCorr = incStopCorr - incStop;
                 incStop = incStopCorr;
-                offset = calculOffset(inputWav, decStart, incStop) + offsetCorr;
+                offset = calculOffset(inputWav, decStart, incStop) +offsetCorr;
                 System.out.println("offset corrige = " + offset);
             } else {
                 offset = calculOffset(inputWav, decStart, incStop);
@@ -342,7 +352,8 @@ public class Pauvocoder {
      */
     public static double[] echo(double[] wav, double delayMs, double attn) {
         for(int index = 0; index < wav.length; index++) {
-            int new_index = index - (int)(delayMs * StdAudio.SAMPLE_RATE / 1000);
+            int temp = (int)(delayMs * StdAudio.SAMPLE_RATE / 1000);
+            int new_index = index - temp;
             if (new_index >= 0) {
                 wav[index] += wav[new_index] * attn;
                 if (wav[index] > 1.0) {wav[index] = 1.0;}
