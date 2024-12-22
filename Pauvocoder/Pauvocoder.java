@@ -65,11 +65,11 @@ public class Pauvocoder {
         outputWav = vocodeSimpleOverCross(newPitchWav, 1.0/freqScale);
         StdAudio.save(outPutFile+"SimpleOverCross.wav", outputWav);
 
-        // joue(outputWav);
+        // joue(outputWav); // Is called by displayWaveform
 
         // Some echo above all
-        // outputWav = echo(outputWav, 100, 0.7);
-        // StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
+        outputWav = echo(outputWav, 100, 0.7);
+        StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
 
         // Display waveform
         displayWaveform(outputWav);
@@ -132,7 +132,7 @@ public class Pauvocoder {
                 ind = inputWav.length - SEQUENCE;
             };
             for (int j = 0; j < SEQUENCE; j++) {
-                if (n >= taille) {
+                if (n >= taille) { // to avoid index out of bounds
                     break;
                 }
                 outputWav[n++] = inputWav[(int)(ind+j)];
@@ -163,13 +163,15 @@ public class Pauvocoder {
      * @return the new value of n
      */
     public static int applyOverlapAndMix(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
-        n -= OVERLAP;
+        n -= OVERLAP; // to mix the overlapping
         for (int j = 0; j < seq ; j++) {
             int index = i+j + offset;
-            if (index >= inputWav.length || n >= outputWav.length)
+            int len = inputWav.length;
+            if (index >= len || n >= len)
                 break;
 
             if (j < OVERLAP) {
+                // increase the coefficient
                 double coefficient = ((double)(j) / (double)OVERLAP);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
@@ -177,6 +179,7 @@ public class Pauvocoder {
                 outputWav[n++] += inputWav[index];
             }
             else {
+                // decrease the coefficient
                 double coefficient = ((double)(seq - j) / (double)OVERLAP);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
@@ -203,7 +206,7 @@ public class Pauvocoder {
 
         int offset = 0;
         for (int i = 0; i < inputWav.length; i += saut) {
-            if (i+seq >= inputWav.length) {
+            if (i+seq >= inputWav.length) { // adapt offset if necessary to avoid index out of bounds
                 offset = inputWav.length - (i+seq);
             };
             n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
@@ -306,10 +309,11 @@ public class Pauvocoder {
         for (int i = 0; i < inputWav.length; i += saut) {
             n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
 
+            // offset search
             int decStart = i+seq+offset-OVERLAP;
             int incStop = i+saut; //+OVERLAP; si utilisation de correlation()
             
-            if ((int)(incStop+SEQUENCE+SEEK_WINDOW) >= inputWav.length) {
+            if ((int)(incStop+SEQUENCE+SEEK_WINDOW) >= inputWav.length) { // adapt offset if necessary to avoid index out of bounds
                 int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
                 int offsetCorr = incStopCorr - incStop;
                 incStop = incStopCorr;
@@ -381,11 +385,11 @@ public class Pauvocoder {
         StdDraw.clear();
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.setPenRadius(1.0/wav.length);
+        // Draw the waveform
         for (int i = 0; i < wav.length; i++) {
             double x = (double)i / wav.length;
             double y = wav[i];
             StdDraw.line(x, y, x, 0);
-            // StdDraw.point(x, y);
         }
         StdDraw.show();
         StdDraw.save("wave.png");
@@ -407,6 +411,7 @@ public class Pauvocoder {
 
         DrawWaveForm(wav);
 
+        // Draw the waveform on another thread
         Thread drawingThread = new Thread(() -> {
             long start = System.currentTimeMillis();
             double x = 0.0;
@@ -439,8 +444,10 @@ public class Pauvocoder {
     public static void Draw(double[] wav, double x) {
         StdDraw.clear();
         
+        // Draw the waveform from the wave.png file
         StdDraw.picture(0.5, 0, "wave.png", 1, 2.0);
-
+        
+        // Draw the vertical line at the time played
         StdDraw.setPenColor(StdDraw.RED);
         StdDraw.setPenRadius(0.01);
         StdDraw.line(x, -1, x, 1);
@@ -525,10 +532,13 @@ public class Pauvocoder {
      * with the result of applying these methods to the same sine wave with a different frequency.
      */
     public static void test() {
+
+        // disable stdout
         PrintStream originalOut = System.out;
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
+        // Tests for vocodeSimpleOverCross
         double testResult440_3s_1point2 = testComparasionFreqScale(440, 3, 1.2);
         double testResult440_3s_0point8 = testComparasionFreqScale(440, 3, 0.8);
         double testResult440_3s_1 = testComparasionFreqScale(440, 3, 1);
@@ -536,12 +546,13 @@ public class Pauvocoder {
         double testResult440_10s_0point8 = testComparasionFreqScale(440, 10, 0.8);
         double testResult440_10s_1 = testComparasionFreqScale(440, 10, 1);
 
+        // Comparison of different frequencies
         double test400_3s_vs_480_3s = testComparasionFreq(400, 480, 3);
         double test400_10s_vs_480_10s = testComparasionFreq(400, 480, 10);
         double test800_3s_vs_4400_3s = testComparasionFreq(800, 4400, 3);
         double test800_10s_vs_4400_10s = testComparasionFreq(800, 4400, 10);
 
-
+        // enable stdout
         System.setOut(originalOut);
         
         System.out.println("###################");
