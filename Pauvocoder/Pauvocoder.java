@@ -1,3 +1,10 @@
+// MIGUET Maxime & SANDT Timothé
+// S1C2
+// 
+// Pauvocoder file
+
+
+
 import static java.lang.System.exit;
 import java.io.File;
 
