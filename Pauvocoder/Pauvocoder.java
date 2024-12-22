@@ -59,6 +59,7 @@ public class Pauvocoder {
 
     }
 
+
     /**
      * Resample inputWav with freqScale
      * @param inputWav
@@ -92,6 +93,7 @@ public class Pauvocoder {
         System.out.println("n = " + n);
         return outputWav;
     }
+
 
     /**
      * Simple dilatation, without any overlapping
@@ -135,6 +137,17 @@ public class Pauvocoder {
         return outputWav;
     }
 
+
+    /**
+     * Applies overlapping and mixing to the outputWav from the inputWav
+     * @param inputWav
+     * @param outputWav
+     * @param i the starting index in the input wave
+     * @param seq
+     * @param n the starting index in the output wave
+     * @param offset
+     * @return the new value of n
+     */
     public static int applyOverlapAndMix(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
         n -= OVERLAP;
         // if ((int)(i+SEQUENCE) >= inputWav.length) {
@@ -149,7 +162,6 @@ public class Pauvocoder {
             if (j < OVERLAP) {
                 double coefficient = ((double)(j) / (double)OVERLAP);
                 ListOfCoefficients[j] = coefficient;
-                System.out.println("(j<OVERLAP) coefficient = " + coefficient);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
             else if (j >= OVERLAP && j < seq - OVERLAP) {
@@ -158,7 +170,6 @@ public class Pauvocoder {
             else {
                 double coefficient = ((double)(seq - j) / (double)OVERLAP);
                 ListOfCoefficients[j - seq + OVERLAP] += coefficient;
-                System.out.println("(j>=OVERLAP) coefficient = " + coefficient);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
         }
@@ -169,6 +180,7 @@ public class Pauvocoder {
         }
         return n;
     }
+
 
     /**
      * Simple dilatation, with overlapping
@@ -203,6 +215,15 @@ public class Pauvocoder {
         return outputWav;
     }
 
+
+    /**
+     * Computes the cross-correlation between two segments of the input waveform.
+     * 
+     * @param inputWav
+     * @param decStart the starting index for the decreasing segment
+     * @param incStop the starting index for the increasing segment
+     * @return the cross-correlation sum
+     */
     public static double correlation(double[] inputWav, int decStart, int incStop) {
         double sum = 0;
         for (int i = 0; i < OVERLAP; i++) {
@@ -213,6 +234,14 @@ public class Pauvocoder {
         return sum;
     }
 
+
+    /**
+     * Calcul the offset 
+     * @param inputWav
+     * @param decStart the starting index for the decreasing segment
+     * @param incStop the starting index for the increasing segment
+     * @return the offset
+     */
     public static int calculOffset(double[] inputWav, int decStart, int incStop) {  
         double similarity = correlation(inputWav, decStart, incStop);
         int offset = 0;
@@ -227,6 +256,7 @@ public class Pauvocoder {
         }
         return offset;
     }
+
 
     /**
      * Simple dilatation, with overlapping and maximum cross correlation search
@@ -274,6 +304,7 @@ public class Pauvocoder {
         StdAudio.play(wav);
     }
 
+
     /**
      * Add an echo to the wav
      * @param wav
@@ -292,6 +323,7 @@ public class Pauvocoder {
         }
         return wav;
     }
+
 
     /**
      * Display the waveform
@@ -323,6 +355,13 @@ public class Pauvocoder {
         joue(wav);
     }
 
+
+    /**
+     * Draw the waveform
+     * @param wav
+     * @param SIZE_REFRACTOR
+     * @param duree in ms
+     */
     public static void Draw(double[] wav, int SIZE_REFRACTOR, long duree) {
         StdDraw.clear();
         StdDraw.setPenColor(StdDraw.BLACK);
@@ -341,5 +380,6 @@ public class Pauvocoder {
         StdDraw.show(1000/30);
     }
 
-
 }
+
+
