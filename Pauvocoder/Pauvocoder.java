@@ -238,6 +238,18 @@ public class Pauvocoder {
     }
 
 
+    public static double meanDifferences(double[] inputWav, int decStart, int incStart) {
+        double sum = 0;
+        int i;
+        for (i = 0; i < OVERLAP; i++) {
+            if (decStart + i >= inputWav.length || incStart + i >= inputWav.length)
+                break;
+            sum += Math.abs(inputWav[decStart + i] - inputWav[incStart + i]);
+        }
+        return sum/(i+1);
+    }
+
+
     /**
      * Calcul the offset 
      * @param inputWav
@@ -246,11 +258,11 @@ public class Pauvocoder {
      * @return the offset
      */
     public static int calculOffset(double[] inputWav, int decStart, int incStop) {  
-        double similarity = correlation(inputWav, decStart, incStop);
+        double similarity = meanDifferences(inputWav, decStart, incStop);
         int offset = 0;
         for (int i = 1; i < SEEK_WINDOW; i++) {
-            double sim = correlation(inputWav, decStart, incStop + i);
-            if (sim > similarity) {
+            double sim = meanDifferences(inputWav, decStart, incStop + i);
+            if (sim < similarity) { // (sim > similarity) si utilisation de correlation()
                 similarity = sim;
                 offset = i;
             }
@@ -290,17 +302,18 @@ public class Pauvocoder {
 
         int offset = 0;
         for (int i = 0; i < inputWav.length; i += saut) {
-            System.out.println("offset = " + offset);
+            // System.out.println("offset = " + offset);
             n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
 
             int decStart = i+seq+offset-OVERLAP;
-            int incStop = i+saut+OVERLAP;
+            int incStop = i+saut;//+OVERLAP; si utilisation de correlation()
             
             if ((int)(incStop+SEQUENCE+SEEK_WINDOW) >= inputWav.length) {
                 int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
                 int offsetCorr = incStopCorr - incStop;
                 incStop = incStopCorr;
                 offset = calculOffset(inputWav, decStart, incStop) + offsetCorr;
+                System.out.println("offset corrige = " + offset);
             } else {
                 offset = calculOffset(inputWav, decStart, incStop);
             }
@@ -346,7 +359,7 @@ public class Pauvocoder {
     public static void displayWaveform(double[] wav) {
         int WIDTH_WINDOW = 1500;
         int HEIGHT_WINDOW = 500;
-        int SIZE_REFRACTOR = 10;
+        int SIZE_REFRACTOR = 50;
         int SIZE = wav.length/SIZE_REFRACTOR;
         StdDraw.setCanvasSize(WIDTH_WINDOW, HEIGHT_WINDOW);
         StdDraw.enableDoubleBuffering();
@@ -355,7 +368,6 @@ public class Pauvocoder {
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.setPenRadius(0.005);
         StdDraw.show();
-        int i = 0;
         Thread drawingThread = new Thread(() -> {
             long start = System.currentTimeMillis();
             while (true) {
@@ -391,7 +403,7 @@ public class Pauvocoder {
         int indexDuree = (int) (duree * StdAudio.SAMPLE_RATE / 1000) / SIZE_REFRACTOR;
         StdDraw.line(indexDuree, -1, indexDuree, 1);
 
-        StdDraw.show(1000/30);
+        StdDraw.show(50);
     }
 
 }
