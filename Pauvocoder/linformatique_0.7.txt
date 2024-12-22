@@ -1,0 +1,49 @@
+Opening linformatique.wav
+Resampling
+###########################
+resample
+freqScale = 0.7
+old taille = 422302
+new taille = 603289
+duration = 13.68002267573696s
+n = 603289
+Simple dilatation
+###########################
+vocodeSimple
+dilatation = 1.4285714285714286
+saut = 6300.0
+SEQUENCE = 4410
+old taille = 603289
+new taille = 422302
+duration = 9.576009070294784s
+n = 422302
+Simple dilatation with overlaping
+###########################
+vocodeSimpleOver
+dilatation = 1.4285714285714286
+saut = 6300
+SEQUENCE = 4410
+seq = 5292
+OVERLAP = 882
+old taille = 603289
+new taille = 422302
+duration = 9.576009070294784s
+n = 422302
+Simple dilatation with overlaping and maximum cross correlation search
+###########################
+vocodeSimpleOverCross
+dilatation = 1.4285714285714286
+saut = 6300
+SEQUENCE = 4410
+seq = 5292
+OVERLAP = 882
+SEEK_WINDOW = 661
+old taille = 603289
+new taille = 422302
+duration = 9.576009070294784s
+n = 422302
+###########################
+echo
+delayMs = 100.0
+attn = 0.7
+duration = 9.576009070294784s
