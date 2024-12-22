@@ -64,18 +64,6 @@ public class Pauvocoder {
 
         // Display waveform
         displayWaveform(outputWav);
-
-
-
-
-        System.out.println("Test : " + test(440, 3, 1.2));
-        System.out.println("Test : " + test(440, 3, 0.8));
-        System.out.println("Test : " + test(440, 3, 1));
-
-        System.out.println("Test : " + test(1420, 5, 1.2));
-        System.out.println("Test : " + test(1420, 5, 0.8));
-        System.out.println("Test : " + test(1420, 5, 1));
-
     }
 
 
@@ -271,7 +259,7 @@ public class Pauvocoder {
     /**
      * Calcul the offset 
      * @param inputWav
-     * @param decStart the starting index for the decreasing segment
+     * @param decStart the starting index for the decreasing segmenavect
      * @param incStop the starting index for the increasing segment
      * @return the offset
      */
@@ -369,6 +357,11 @@ public class Pauvocoder {
 
 
 
+    /**
+     * Display the waveform of a double array of audio samples.
+     * The waveform is saved to a file named "wave.png".
+     * @param wav the double array of audio samples
+     */
     public static void DrawWaveForm(double[] wav) {
         StdDraw.clear();
         StdDraw.text(0.5, 0.05, "Pauvocoder waveform");
@@ -391,17 +384,15 @@ public class Pauvocoder {
 
 
     /**
-     * Display the waveform
+     * Display the waveform and play it simultaneously
      * @param wav
      */
     public static void displayWaveform(double[] wav) {
         int WIDTH_WINDOW = 1500;
         int HEIGHT_WINDOW = 500;
         StdDraw.setCanvasSize(WIDTH_WINDOW, HEIGHT_WINDOW);
-        
         StdDraw.setXscale(0, 1);
         StdDraw.setYscale(-1.0, 1.0);
-        
         StdDraw.enableDoubleBuffering();
         StdDraw.show(100);
 
@@ -430,11 +421,11 @@ public class Pauvocoder {
     }
 
 
+    
     /**
-     * Draw the waveform
-     * @param wav
-     * @param SIZE_REFRACTOR
-     * @param duree in ms
+     * Display the waveform and the vertical red line at the time played (x)
+     * @param wav the double array of audio samples
+     * @param x the time between 0 and 1
      */
     public static void Draw(double[] wav, double x) {
         StdDraw.clear();
