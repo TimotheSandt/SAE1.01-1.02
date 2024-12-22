@@ -68,8 +68,8 @@ public class Pauvocoder {
         // joue(outputWav);
 
         // Some echo above all
-        // outputWav = echo(outputWav, 100, 0.7);
-        // StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
+        outputWav = echo(outputWav, 100, 0.7);
+        StdAudio.save(outPutFile+"SimpleOverCrossEcho.wav", outputWav);
 
         // Display waveform
         displayWaveform(outputWav);
@@ -313,7 +313,7 @@ public class Pauvocoder {
                 int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
                 int offsetCorr = incStopCorr - incStop;
                 incStop = incStopCorr;
-                offset = calculOffset(inputWav, decStart, incStop) + offsetCorr;
+                offset = calculOffset(inputWav, decStart, incStop)+ offsetCorr;
             } else {
                 offset = calculOffset(inputWav, decStart, incStop);
             }
