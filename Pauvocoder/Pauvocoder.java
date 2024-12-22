@@ -1,4 +1,5 @@
 import static java.lang.System.exit;
+import java.io.File;
 
 public class Pauvocoder {
 
@@ -352,6 +353,27 @@ public class Pauvocoder {
     }
 
 
+
+    public static void DrawWaveForm(double[] wav) {
+        StdDraw.clear();
+        StdDraw.text(0.5, 0.05, "Pauvocoder waveform");
+        StdDraw.text(0.5, -0.05, "Calculating waveform...");
+        StdDraw.show();
+
+        StdDraw.clear();
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(1.0/wav.length);
+        for (int i = 0; i < wav.length; i++) {
+            double x = (double)i / wav.length;
+            double y = wav[i];
+            StdDraw.line(x, y, x, 0);
+            // StdDraw.point(x, y);
+        }
+        StdDraw.show();
+        StdDraw.save("wave.png");
+    }
+
+
     /**
      * Display the waveform
      * @param wav
@@ -359,26 +381,39 @@ public class Pauvocoder {
     public static void displayWaveform(double[] wav) {
         int WIDTH_WINDOW = 1500;
         int HEIGHT_WINDOW = 500;
-        int SIZE_REFRACTOR = 50;
-        int SIZE = wav.length/SIZE_REFRACTOR;
         StdDraw.setCanvasSize(WIDTH_WINDOW, HEIGHT_WINDOW);
-        StdDraw.enableDoubleBuffering();
-        StdDraw.setXscale(0, SIZE);
+        
+        StdDraw.setXscale(0, 1);
         StdDraw.setYscale(-1.0, 1.0);
-        StdDraw.setPenColor(StdDraw.BLACK);
-        StdDraw.setPenRadius(0.005);
+        
+        StdDraw.enableDoubleBuffering();
+
+        
+        StdDraw.clear();
         StdDraw.show();
+
+        DrawWaveForm(wav);
+
         Thread drawingThread = new Thread(() -> {
             long start = System.currentTimeMillis();
-            while (true) {
+            double x = 0.0;
+            while (x < 1.0) {
                 long crt = System.currentTimeMillis();
                 long duree = crt - start;
-                Draw(wav, SIZE_REFRACTOR, duree);
+                int indexDuree = (int) (duree * StdAudio.SAMPLE_RATE / 1000);
+                x = (double)indexDuree / wav.length;
+                Draw(wav, Math.min(1.0, x));
             }
         });
         drawingThread.start();
-
         joue(wav);
+
+
+        StdDraw.pause(1000);
+        StdDraw.close();
+
+        File f = new File("wave.png");
+        f.delete();
     }
 
 
@@ -388,20 +423,14 @@ public class Pauvocoder {
      * @param SIZE_REFRACTOR
      * @param duree in ms
      */
-    public static void Draw(double[] wav, int SIZE_REFRACTOR, long duree) {
+    public static void Draw(double[] wav, double x) {
         StdDraw.clear();
-        StdDraw.setPenColor(StdDraw.BLACK);
-        StdDraw.setPenRadius(0.001);
-        for (int j = 0, i = 0; j < wav.length; j+=SIZE_REFRACTOR, i++) {
-            double x = i;
-            double y = wav[j];
-            StdDraw.line(x, y, x, 0);
-        }
+        
+        StdDraw.picture(0.5, 0, "wave.png", 1, 2.0);
 
         StdDraw.setPenColor(StdDraw.RED);
         StdDraw.setPenRadius(0.01);
-        int indexDuree = (int) (duree * StdAudio.SAMPLE_RATE / 1000) / SIZE_REFRACTOR;
-        StdDraw.line(indexDuree, -1, indexDuree, 1);
+        StdDraw.line(x, -1, x, 1);
 
         StdDraw.show(50);
     }
