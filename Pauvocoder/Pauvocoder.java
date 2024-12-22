@@ -58,6 +58,17 @@ public class Pauvocoder {
         // Display waveform
         displayWaveform(outputWav);
 
+
+
+
+        System.out.println("Test : " + test(440, 3, 1.2));
+        System.out.println("Test : " + test(440, 3, 0.8));
+        System.out.println("Test : " + test(440, 3, 1));
+
+        System.out.println("Test : " + test(1420, 5, 1.2));
+        System.out.println("Test : " + test(1420, 5, 0.8));
+        System.out.println("Test : " + test(1420, 5, 1));
+
     }
 
 
@@ -81,17 +92,18 @@ public class Pauvocoder {
             taille = (int)(inputWav.length * (raison + 1) + 1);
         }
 
+        outputWav = new double[taille];
+        for (double i = 0; i < inputWav.length; i += freqScale) {
+            outputWav[n++] = inputWav[(int)i];
+        } 
+        
         System.out.println("###########################");
         System.out.println("resample");
         System.out.println("freqScale = " + freqScale);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + taille);
-
-        outputWav = new double[taille];
-        for (double i = 0; i < inputWav.length; i += freqScale) {
-            outputWav[n++] = inputWav[(int)i];
-        }
         System.out.println("n = " + n);
+
         return outputWav;
     }
 
@@ -106,17 +118,9 @@ public class Pauvocoder {
         double saut = (SEQUENCE * dilatation);
         int n = 0;
         double outputWav[];
-        int taille = (int)(inputWav.length / dilatation) + 1;
+        int taille = (int)(inputWav.length / dilatation);
 
         outputWav = new double[taille];
-
-        System.out.println("###########################");
-        System.out.println("vocodeSimple");
-        System.out.println("dilatation = " + dilatation);
-        System.out.println("saut = " + saut);
-        System.out.println("SEQUENCE = " + SEQUENCE);
-        System.out.println("old taille = " + inputWav.length);
-        System.out.println("new taille = " + taille);
 
         for (double i = 0; i < inputWav.length; i += saut) {
             int ind = (int)i;
@@ -125,16 +129,21 @@ public class Pauvocoder {
             };
             for (int j = 0; j < SEQUENCE; j++) {
                 if (n >= taille) {
-                    System.out.println("j = " + j);
-                    System.out.println("ind = " + i);
-                    System.out.println("ind+j = " + (ind+j));
-                    System.out.println("n = " + n);
                     break;
                 }
                 outputWav[n++] = inputWav[(int)(ind+j)];
             }
         }
+
+        System.out.println("###########################");
+        System.out.println("vocodeSimple");
+        System.out.println("dilatation = " + dilatation);
+        System.out.println("saut = " + saut);
+        System.out.println("SEQUENCE = " + SEQUENCE);
+        System.out.println("old taille = " + inputWav.length);
+        System.out.println("new taille = " + taille);
         System.out.println("n = " + n);
+
         return outputWav;
     }
 
@@ -151,7 +160,6 @@ public class Pauvocoder {
      */
     public static int applyOverlapAndMix(double[] inputWav, double[] outputWav, int i, int seq, int n, int offset) {
         n -= OVERLAP;
-        // double ListOfCoefficients[] = new double[OVERLAP];
         for (int j = 0; j < seq ; j++) {
             int index = i+j + offset;
             if (index >= inputWav.length || n >= outputWav.length)
@@ -159,8 +167,6 @@ public class Pauvocoder {
 
             if (j < OVERLAP) {
                 double coefficient = ((double)(j) / (double)OVERLAP);
-                // ListOfCoefficients[j] = coefficient;
-                // System.out.println("(j<OVERLAP) coefficient = " + coefficient);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
             else if (j >= OVERLAP && j < seq - OVERLAP) {
@@ -168,16 +174,9 @@ public class Pauvocoder {
             }
             else {
                 double coefficient = ((double)(seq - j) / (double)OVERLAP);
-                // ListOfCoefficients[j - seq + OVERLAP] += coefficient;
-                // System.out.println("(j>=OVERLAP) coefficient = " + coefficient);
                 outputWav[n++] += inputWav[index] * coefficient;
             }
         }
-
-        // for (int k = 0; k < OVERLAP; k++) {
-        //     double coef = ListOfCoefficients[k];
-        //     System.out.println("coef " + k + " = " + coef);
-        // }
         return n;
     }
 
@@ -193,9 +192,18 @@ public class Pauvocoder {
         int saut = (int) (SEQUENCE * dilatation);
         int n = OVERLAP;
         double outputWav[];
-        int taille = (int)(inputWav.length / dilatation) + 1;
+        int taille = (int)(inputWav.length / dilatation);
         
         outputWav = new double[taille];
+
+
+        int offset = 0;
+        for (int i = 0; i < inputWav.length; i += saut) {
+            if (i+seq >= inputWav.length) {
+                offset = inputWav.length - (i+seq);
+            };
+            n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
+        }
 
         System.out.println("###########################");
         System.out.println("vocodeSimpleOver");
@@ -206,16 +214,8 @@ public class Pauvocoder {
         System.out.println("OVERLAP = " + OVERLAP);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + outputWav.length);
-
-
-        int offset = 0;
-        for (int i = 0; i < inputWav.length; i += saut) {
-            if (i+seq >= inputWav.length) {
-                offset = inputWav.length - (i+seq);
-            };
-            n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
-        }
         System.out.println("n = " + n);
+
         return outputWav;
     }
 
@@ -267,8 +267,6 @@ public class Pauvocoder {
                 similarity = sim;
                 offset = i;
             }
-            // System.out.println(" offset = " + i);
-            // System.out.println(" similarity = " + sim);
         }
         return offset;
     }
@@ -285,9 +283,27 @@ public class Pauvocoder {
         int saut = (int) (SEQUENCE * dilatation);
         int n = OVERLAP;
         double outputWav[];
-        int taille = (int)(inputWav.length / dilatation) + 1;
+        int taille = (int)(inputWav.length / dilatation);
         
         outputWav = new double[taille];
+
+
+        int offset = 0;
+        for (int i = 0; i < inputWav.length; i += saut) {
+            n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
+
+            int decStart = i+seq+offset-OVERLAP;
+            int incStop = i+saut; //+OVERLAP; si utilisation de correlation()
+            
+            if ((int)(incStop+SEQUENCE+SEEK_WINDOW) >= inputWav.length) {
+                int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
+                int offsetCorr = incStopCorr - incStop;
+                incStop = incStopCorr;
+                offset = calculOffset(inputWav, decStart, incStop) + offsetCorr;
+            } else {
+                offset = calculOffset(inputWav, decStart, incStop);
+            }
+        }
 
         System.out.println("###########################");
         System.out.println("vocodeSimpleOverCross");
@@ -299,27 +315,8 @@ public class Pauvocoder {
         System.out.println("SEEK_WINDOW = " + SEEK_WINDOW);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + outputWav.length);
-
-
-        int offset = 0;
-        for (int i = 0; i < inputWav.length; i += saut) {
-            // System.out.println("offset = " + offset);
-            n = applyOverlapAndMix(inputWav, outputWav, i, seq, n, offset);
-
-            int decStart = i+seq+offset-OVERLAP;
-            int incStop = i+saut;//+OVERLAP; si utilisation de correlation()
-            
-            if ((int)(incStop+SEQUENCE+SEEK_WINDOW) >= inputWav.length) {
-                int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
-                int offsetCorr = incStopCorr - incStop;
-                incStop = incStopCorr;
-                offset = calculOffset(inputWav, decStart, incStop) + offsetCorr;
-                System.out.println("offset corrige = " + offset);
-            } else {
-                offset = calculOffset(inputWav, decStart, incStop);
-            }
-        }
         System.out.println("n = " + n);
+
         return outputWav;
     }
     
@@ -358,7 +355,8 @@ public class Pauvocoder {
         StdDraw.clear();
         StdDraw.text(0.5, 0.05, "Pauvocoder waveform");
         StdDraw.text(0.5, -0.05, "Calculating waveform...");
-        StdDraw.show();
+        StdDraw.show(30);
+        
 
         StdDraw.clear();
         StdDraw.setPenColor(StdDraw.BLACK);
@@ -387,10 +385,7 @@ public class Pauvocoder {
         StdDraw.setYscale(-1.0, 1.0);
         
         StdDraw.enableDoubleBuffering();
-
-        
-        StdDraw.clear();
-        StdDraw.show();
+        StdDraw.show(100);
 
         DrawWaveForm(wav);
 
@@ -434,7 +429,6 @@ public class Pauvocoder {
 
         StdDraw.show(50);
     }
-
 }
 
 
