@@ -166,8 +166,7 @@ public class Pauvocoder {
         n -= OVERLAP; // to mix the overlapping
         for (int j = 0; j < seq ; j++) {
             int index = i+j + offset;
-            int len = inputWav.length;
-            if (index >= len || n >= len)
+            if (index >= inputWav.length || n >= outputWav.length)
                 break;
 
             if (j < OVERLAP) {
