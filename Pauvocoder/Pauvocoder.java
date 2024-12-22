@@ -106,6 +106,8 @@ public class Pauvocoder {
         System.out.println("freqScale = " + freqScale);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + taille);
+        double duree = (double)(taille) / StdAudio.SAMPLE_RATE;
+        System.out.println("duration = " + duree + "s");
         System.out.println("n = " + n);
 
         return outputWav;
@@ -146,6 +148,8 @@ public class Pauvocoder {
         System.out.println("SEQUENCE = " + SEQUENCE);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + taille);
+        double duree = (double)(taille) / StdAudio.SAMPLE_RATE;
+        System.out.println("duration = " + duree + "s");
         System.out.println("n = " + n);
 
         return outputWav;
@@ -220,6 +224,8 @@ public class Pauvocoder {
         System.out.println("OVERLAP = " + OVERLAP);
         System.out.println("old taille = " + inputWav.length);
         System.out.println("new taille = " + outputWav.length);
+        double duree = (double)(taille) / StdAudio.SAMPLE_RATE;
+        System.out.println("duration = " + duree + "s");
         System.out.println("n = " + n);
 
         return outputWav;
@@ -331,7 +337,9 @@ public class Pauvocoder {
         System.out.println("OVERLAP = " + OVERLAP);
         System.out.println("SEEK_WINDOW = " + SEEK_WINDOW);
         System.out.println("old taille = " + inputWav.length);
-        System.out.println("new taille = " + outputWav.length);
+        System.out.println("new taille = " + taille);
+        double duree = (double)(taille) / StdAudio.SAMPLE_RATE;
+        System.out.println("duration = " + duree + "s");
         System.out.println("n = " + n);
 
         return outputWav;
@@ -364,6 +372,12 @@ public class Pauvocoder {
                 if (wav[index] < -1.0) {wav[index] = -1.0;}
             }
         }
+        System.out.println("###########################");
+        System.out.println("echo");
+        System.out.println("delayMs = " + delayMs);
+        System.out.println("attn = " + attn);
+        double duree = (double)(wav.length) / StdAudio.SAMPLE_RATE;
+        System.out.println("duration = " + duree + "s");
         return wav;
     }
 
