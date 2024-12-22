@@ -280,7 +280,7 @@ public class Pauvocoder {
         int offset = 0;
         for (int i = 1; i < SEEK_WINDOW; i++) {
             double sim = meanDifferences(inputWav, decStart, incStop + i);
-            if (sim < similarity) { // (sim > similarity) si utilisation de correlation()
+            if (sim < similarity) { // (sim > similarity) if use of correlation()
                 similarity = sim;
                 offset = i;
             }
@@ -311,7 +311,7 @@ public class Pauvocoder {
 
             // offset search
             int decStart = i+seq+offset-OVERLAP;
-            int incStop = i+saut; //+OVERLAP; si utilisation de correlation()
+            int incStop = i+saut; //+OVERLAP; if use of correlation()
             
             if ((int)(incStop+SEQUENCE+SEEK_WINDOW) >= inputWav.length) { // adapt offset if necessary to avoid index out of bounds
                 int incStopCorr = inputWav.length - SEQUENCE - SEEK_WINDOW;
@@ -591,5 +591,6 @@ public class Pauvocoder {
 
 
 }
+
 
 
