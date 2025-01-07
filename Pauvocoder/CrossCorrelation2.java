@@ -2,58 +2,72 @@ import java.util.Arrays;
 
 public class CrossCorrelation2 {
 
-    
-
-    public static double[] correlation(double[] sig1, double[] sig2) {
-        int input_size = sig1.length;
-        int output_size = input_size * 2 - 1;
-
-        // First power of 2 above output_size
-        int power_of_2 = 1;
-        while (power_of_2 < output_size) {
-            power_of_2 *= 2;
+    public static int power_of_2(int n) {
+        int p = 1;
+        while (p < n) {
+            p *= 2;
         }
-        output_size = power_of_2;
+        return p;
+    }
+
+    public static Complex[] ZeroPadding(double[] sig, int size_padded) {
+        Complex[] sig_padded = new Complex[size_padded];
+        for (int i = 0; i < sig.length; i++) {
+            sig_padded[i] = new Complex(sig[i], 0);
+        }
+        for (int i = sig.length; i < size_padded; i++) {
+            sig_padded[i] = new Complex(0, 0);
+        }
+        return sig_padded;
+    }
+
+    public static double[] CrossCorrelation(double[] sig1, double[] sig2) {
+        if (sig1.length != sig2.length) {
+            return null;
+        }
+
+        int size = sig1.length;
+        int output_size = size * 2 - 1;
+        int size_padded = power_of_2(output_size);
 
         // zero padding
-        double[] sig1_padded = new double[output_size];
-        double[] sig2_padded = new double[output_size];
-        for (int i = 0; i < input_size; i++) {
-            sig1_padded[i] = sig1[i];
-            sig2_padded[i] = sig2[i];
-        }
+        Complex[] sig1_padded = ZeroPadding(sig1, size_padded);
+        Complex[] sig2_padded = ZeroPadding(sig2, size_padded);
 
         // FFT
         Complex[] sig1_fft = FFT.fft(sig1_padded);
         Complex[] sig2_fft = FFT.fft(sig2_padded);
 
         // Correlation
-        Complex[] corr = new Complex[output_size];
-        for (int i = 0; i < output_size; i++) {
-            corr[i] = sig1_fft[i].times(sig2_fft[i].conjugate());
+        Complex[] corr = new Complex[size_padded];
+        for (int i = 0; i < size_padded; i++) {
+            corr[i] = sig1_fft[i].times( sig2_fft[i].conjugate() );
         }
 
         // IFFT
         corr = FFT.ifft(corr);
 
         // Extract real part
-        double[] corr_real = new double[sig1.length];
-        for (int i = 0; i < sig1.length; i++) {
+        double[] corr_real = new double[output_size];
+        for (int i = 0; i < size; i++) {
             corr_real[i] = corr[i].re();
+        }
+        for (int i = 1; i < size; i++) {
+            corr_real[output_size - i] = corr[size_padded - i].re();
         }
 
         return corr_real;
     }
 
     public static void main(String[] args) {
-        double[] sig1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-        double[] sig2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+        double[] sig1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        double[] sig2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
         System.out.println("Signal 1: " + Arrays.toString(sig1));
         System.out.println("Signal 2: " + Arrays.toString(sig2));
 
-        double[] correlation = correlation(sig1, sig2);
+        double[] correlation = CrossCorrelation(sig1, sig2);
 
-        System.out.println("Correlation: " + Arrays.toString(correlation));
+        System.out.println("CrossCorrelation: " + Arrays.toString(correlation));
     }
 }

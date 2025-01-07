@@ -31,15 +31,6 @@
 
  public class FFT {
 
-    public static Complex[] fft(double[] x) {
-        int n = x.length;
-        Complex[] y = new Complex[n];
-        for (int i = 0; i < n; i++) {
-            y[i] = new Complex(x[i], 0);
-        }
-        return fft(y);
-    }
-
     // compute the FFT of x[], assuming its length n is a power of 2
     public static Complex[] fft(Complex[] x) {
         int n = x.length;
