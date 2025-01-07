@@ -76,8 +76,8 @@ public class ProfilerCrossCorrelation {
     }
 
     public static void main(String[] args) {
-        int N = 7;
-        int p = 10;
+        int p = args.length > 0 ? Integer.parseInt(args[0]) : 2;
+        int N = args.length > 0 ? Integer.parseInt(args[1]) : 12;
         result = new long[2][N];
 
         for (int i = 0; i < N; i++) {
@@ -93,7 +93,7 @@ public class ProfilerCrossCorrelation {
             if (result[1][i] > max) max = result[1][i];
         }
 
-        SaveAsImage("CrossCorrelation.png", result, max);
+        SaveAsImage("CrossCorrelation_" + p + "_" + N + ".png", result, max);
     }
 
 
