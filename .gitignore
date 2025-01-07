@@ -1,3 +1,5 @@
 *.class
 *.wav
 TestPython/
+*.png
+*.txt
