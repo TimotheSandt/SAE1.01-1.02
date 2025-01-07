@@ -51,13 +51,12 @@ public class ProfilerCrossCorrelation {
 
     
     
-    public static void SaveAsImage(String filename, long[][] result, long max) {
-        int N = result.length;
-        int M = result[0].length;
+    public static void SaveAsImage(String filename, long[][] result, int N, long max) {
+        int M = result.length;
 
-        BufferedImage img = new BufferedImage(N, M, BufferedImage.TYPE_INT_RGB);
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
+        BufferedImage img = new BufferedImage(M, N, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
                 int value = (int)(255 * Math.log(result[i][j] + 1) / Math.log(max + 1));
                 img.setRGB(i, j, (value << 16) | (value << 8) | value);
             }
@@ -69,26 +68,69 @@ public class ProfilerCrossCorrelation {
         }
     }
 
-public static void SaveResultToFile(String filename, String nameFunction[], long[][] result, int p, int N, int repetitions) {
-    try (PrintWriter writer = new PrintWriter(new File(filename))) {
-        writer.println("Parameters:");
-        writer.println("p = " + p);
-        writer.println("N = " + N);
-        writer.println("(input size : { p^0, p^1, ..., p^(N-2), p^(N-1) })");
-        writer.println("repetitions = " + repetitions);
-        writer.println();
-        writer.println("Result Data:");
-        for (int i = 0; i < result.length; i++) {
-            writer.print(nameFunction[i] + ": ");
-            for (int j = 0; j < result[i].length; j++) {
-                writer.print(result[i][j] + (j == result[i].length - 1 ? "" : ", "));
-            }
+    public static void SaveResultToFile(String filename, String nameFunction[], long[][] result, int p, int N, int repetitions) {
+        try (PrintWriter writer = new PrintWriter(new File(filename))) {
+            writer.println("Parameters:");
+            writer.println("p = " + p);
+            writer.println("N = " + N);
+            writer.println("(input size : { p^0, p^1, ..., p^(N-2), p^(N-1) })");
+            writer.println("repetitions = " + repetitions);
             writer.println();
+            writer.println("Result Data:");
+            for (int i = 0; i < result.length; i++) {
+                writer.print(nameFunction[i] + ": ");
+                for (int j = 0; j < result[i].length; j++) {
+                    writer.print(result[i][j] + (j == result[i].length - 1 ? "" : ", "));
+                }
+                writer.println();
+            }
+        } catch (IOException e) {
+            System.out.println("Can't save result to file: " + e.getMessage());
         }
-    } catch (IOException e) {
-        System.out.println("Can't save result to file: " + e.getMessage());
     }
-}
+
+    public static void SaveResultToCSV(String filename, String nameFunction[], long[][] result, int p, int N, int repetitions) {
+        try (PrintWriter writer = new PrintWriter(new File(filename))) {
+            String m = "repetitions,inputSize";
+            for (int i = 0; i < nameFunction.length; i++) {
+                m += "," + nameFunction[i];
+            }
+            writer.println(m);
+
+            for (int j = 0; j < N; j++) {
+                m = repetitions + "," + (int)Math.pow(p, j);
+                for (int i = 0; i < nameFunction.length; i++) {
+                    m += "," + result[i][j];
+                }
+                writer.println(m);
+            }
+            
+        } catch (IOException e) {
+            System.out.println("Can't save result to file: " + e.getMessage());
+        }
+    }
+
+    public static void Save(String filename, long[][] result, int p, int N, int repetitions) {
+        long max = 0;
+        for (int i = 0; i < N; i++) {
+            if (result[0][i] > max) max = result[0][i];
+            if (result[1][i] > max) max = result[1][i];
+        }
+        long r_img[][] = new long[2][N + 2];
+        r_img[0][0] = 0;
+        r_img[1][0] = max;
+        System.arraycopy(result[0], 0, r_img[0], 2, N);
+        System.arraycopy(result[1], 0, r_img[1], 2, N);
+
+
+        filename += "_" + p + "_" + N + "_" + repetitions;
+        SaveAsImage(filename + ".png", r_img, N + 2, max);
+
+        String nameFunction[] = { "CrossCorrelation1", "CrossCorrelation2" };
+        SaveResultToFile(filename + ".txt", nameFunction, result, p, N, repetitions);
+
+        SaveResultToCSV(filename + ".csv", nameFunction, result, p, N, repetitions);
+    }
 
 
     public static double[] GetRandomSignal(int length) {
@@ -109,25 +151,9 @@ public static void SaveResultToFile(String filename, String nameFunction[], long
             double[] sig1 = GetRandomSignal((int)Math.pow(p, i));
             double[] sig2 = GetRandomSignal((int)Math.pow(p, i));
             CrossCorrelation(sig1, sig2, repetitions, i);
-            
+            Save("CrossCorrelation", result, p, N, repetitions);
         }
 
-        long max = 0;
-        for (int i = 0; i < N; i++) {
-            if (result[0][i] > max) max = result[0][i];
-            if (result[1][i] > max) max = result[1][i];
-        }
-
-        long r[][] = new long[2][N + 2];
-        r[0][0] = 0;
-        r[1][0] = max;
-        System.arraycopy(result[0], 0, r[0], 2, N);
-        System.arraycopy(result[1], 0, r[1], 2, N);
-        String FileName = "CrossCorrelation_" + p + "_" + N + "_" + repetitions;
-        SaveAsImage(FileName + ".png", r, max);
-
-        String nameFunction[] = { "CrossCorrelation1", "CrossCorrelation2" };
-        SaveResultToFile(FileName + ".txt", nameFunction, result, p, N, repetitions);
     }
 
 
