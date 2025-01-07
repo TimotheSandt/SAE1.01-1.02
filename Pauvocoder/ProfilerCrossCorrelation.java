@@ -2,6 +2,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.io.PrintWriter;
+
 
 
 public class ProfilerCrossCorrelation {
@@ -67,6 +69,28 @@ public class ProfilerCrossCorrelation {
         }
     }
 
+public static void SaveResultToFile(String filename, String nameFunction[], long[][] result, int p, int N, int repetitions) {
+    try (PrintWriter writer = new PrintWriter(new File(filename))) {
+        writer.println("Parameters:");
+        writer.println("p = " + p);
+        writer.println("N = " + N);
+        writer.println("(input size : { p^0, p^1, ..., p^(N-2), p^(N-1) })");
+        writer.println("repetitions = " + repetitions);
+        writer.println();
+        writer.println("Result Data:");
+        for (int i = 0; i < result.length; i++) {
+            writer.print(nameFunction[i] + ": ");
+            for (int j = 0; j < result[i].length; j++) {
+                writer.print(result[i][j] + (j == result[i].length - 1 ? "" : ", "));
+            }
+            writer.println();
+        }
+    } catch (IOException e) {
+        System.out.println("Can't save result to file: " + e.getMessage());
+    }
+}
+
+
     public static double[] GetRandomSignal(int length) {
         double[] signal = new double[length];
         for (int i = 0; i < length; i++) {
@@ -78,12 +102,13 @@ public class ProfilerCrossCorrelation {
     public static void main(String[] args) {
         int p = args.length > 0 ? Integer.parseInt(args[0]) : 2;
         int N = args.length > 0 ? Integer.parseInt(args[1]) : 12;
+        int repetitions = args.length > 2 ? Integer.parseInt(args[2]) : 10000;
         result = new long[2][N];
 
         for (int i = 0; i < N; i++) {
             double[] sig1 = GetRandomSignal((int)Math.pow(p, i));
             double[] sig2 = GetRandomSignal((int)Math.pow(p, i));
-            CrossCorrelation(sig1, sig2, 1000, i);
+            CrossCorrelation(sig1, sig2, repetitions, i);
             
         }
 
@@ -93,7 +118,16 @@ public class ProfilerCrossCorrelation {
             if (result[1][i] > max) max = result[1][i];
         }
 
-        SaveAsImage("CrossCorrelation_" + p + "_" + N + ".png", result, max);
+        long r[][] = new long[2][N + 2];
+        r[0][0] = 0;
+        r[1][0] = max;
+        System.arraycopy(result[0], 0, r[0], 2, N);
+        System.arraycopy(result[1], 0, r[1], 2, N);
+        String FileName = "CrossCorrelation_" + p + "_" + N + "_" + repetitions;
+        SaveAsImage(FileName + ".png", r, max);
+
+        String nameFunction[] = { "CrossCorrelation1", "CrossCorrelation2" };
+        SaveResultToFile(FileName + ".txt", nameFunction, result, p, N, repetitions);
     }
 
 
