@@ -1,3 +1,9 @@
+// MIGUET Maxime & SANDT Timothé
+// S1C2
+// Groupe 12
+// 
+// Profiler file for CrossCorrelation functions
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;

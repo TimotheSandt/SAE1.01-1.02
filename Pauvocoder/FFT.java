@@ -1,3 +1,9 @@
+// MIGUET Maxime & SANDT Timothé
+// S1C2
+// Groupe 12
+// 
+// FFT file (was not created by us)
+
 /******************************************************************************
  *  Compilation:  javac FFT.java
  *  Execution:    java FFT n

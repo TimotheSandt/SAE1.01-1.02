@@ -1,3 +1,9 @@
+// MIGUET Maxime & SANDT Timothé
+// S1C2
+// Groupe 12
+// 
+// Second CrossCorrelation file
+
 import java.util.Arrays;
 
 public class CrossCorrelation2 {

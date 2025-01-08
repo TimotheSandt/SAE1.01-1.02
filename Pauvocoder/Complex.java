@@ -1,3 +1,9 @@
+// MIGUET Maxime & SANDT Timothé
+// S1C2
+// Groupe 12
+// 
+// Complex file for FFT which creates complex numbers
+
 public class Complex {
 
     private final double re;   // Real part
