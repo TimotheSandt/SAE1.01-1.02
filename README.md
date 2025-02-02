@@ -1,3 +1,5 @@
 # SAE1.01-SAE1.02
 
-"T'écris pas ça" :(
+Projet universitaire
+
+Objectif : Développer un Pauvocodeur fonctionnel en Java.
